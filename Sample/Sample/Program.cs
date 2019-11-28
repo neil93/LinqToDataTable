@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
@@ -18,9 +17,13 @@ namespace Sample
 
             //LINQ寫法
             var settlementList1 = (from row in dt.AsEnumerable()
-                                                         where row.Field<decimal>("win_money") > 0 || row.Field<decimal>("downline_return_water") > 0
-                                                         select new CashSettlementModel(row)).ToList();
+                                   where row.Field<decimal>("win_money") > 0 || row.Field<decimal>("downline_return_water") > 0
+                                   select new CashSettlementModel(row)).ToList();
             Console.WriteLine(settlementList1);
+
+            //for版改寫
+            var sample1 = new DataTableToLINQ();
+            sample1.Show();
         }
 
         public static DataTable GetConsumerTable()

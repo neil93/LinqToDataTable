@@ -14,15 +14,11 @@ namespace Sample
             //迴圈寫法
             var result1 = Process1(dt);
             foreach (var r in result1)
-            {
                 Console.WriteLine($"{r.DrawDatetime},{r.BetCount},{r.BetMoney},{r.ProfitLossMoney}");
-            }
             //改用LINQ
             var result2 = Process2(dt);
             foreach (var r in result2)
-            {
                 Console.WriteLine($"{r.DrawDatetime},{r.BetCount},{r.BetMoney},{r.ProfitLossMoney}");
-            }
             Console.ReadKey();
         }
 
@@ -30,15 +26,14 @@ namespace Sample
         {
             //依日期加总并整理历史帐单的内容到综合报表栏位
             var billList = new List<BillViewModel>();
-            for (int i = 0; i < dt.Rows.Count;)
+            for (var i = 0; i < dt.Rows.Count;)
             {
-                int betCount = 0;
+                var betCount = 0;
                 decimal betMoney = 0;
                 decimal profitLossMoney = 0;
-                string drawDatetime = dt.Rows[i]["draw_datetime"].ToString();
+                var drawDatetime = dt.Rows[i]["draw_datetime"].ToString();
 
                 for (; i < dt.Rows.Count;)
-                {
                     if (drawDatetime == dt.Rows[i]["draw_datetime"].ToString())
                     {
                         //还没结算的不算入统计
@@ -48,13 +43,13 @@ namespace Sample
                             betMoney += Convert.ToInt32(dt.Rows[i]["bet_money"]);
                             profitLossMoney += Convert.ToInt32(dt.Rows[i]["profit_loss_money"]);
                         }
+
                         i++;
                     }
                     else
                     {
                         break;
                     }
-                }
 
                 var historyBillData = new BillViewModel
                 {
@@ -65,10 +60,7 @@ namespace Sample
                 };
 
                 //-1是全部合计不需要回传综合报表
-                if (drawDatetime != "-1")
-                {
-                    billList.Add(historyBillData);
-                }
+                if (drawDatetime != "-1") billList.Add(historyBillData);
             }
 
             return billList;
@@ -77,27 +69,27 @@ namespace Sample
         private static List<BillViewModel> Process2(DataTable dt)
         {
             var billList = new List<BillViewModel>();
-            List<ViewModel> list = dt.AsEnumerable().Select(row => new ViewModel(row)).ToList();
+            var list = dt.AsEnumerable().Select(row => new ViewModel(row)).ToList();
 
             var result = from h in list
-                         where h.ProfitLossMoney != 0 //还没结算的不算入统计及
-                               && h.DrawDatetime != "-1" //-1是全部合计不需要回传综合报表
-                         group h by h.DrawDatetime
+                where h.ProfitLossMoney != 0 //还没结算的不算入统计及
+                      && h.DrawDatetime != "-1" //-1是全部合计不需要回传综合报表
+                group h by h.DrawDatetime
                 into g
-                         select new BillViewModel()
-                         {
-                             BetCount = g.Sum(p => p.BetCount),
-                             BetMoney = g.Sum(p => p.BetMoney),
-                             DrawDatetime = g.Select(p => p.DrawDatetime).FirstOrDefault(),
-                             ProfitLossMoney = g.Sum(p => p.ProfitLossMoney)
-                         };
+                select new BillViewModel
+                {
+                    BetCount = g.Sum(p => p.BetCount),
+                    BetMoney = g.Sum(p => p.BetMoney),
+                    DrawDatetime = g.Select(p => p.DrawDatetime).FirstOrDefault(),
+                    ProfitLossMoney = g.Sum(p => p.ProfitLossMoney)
+                };
             billList.AddRange(result);
             return billList;
         }
 
         private static DataTable GetHistoryBillList()
         {
-            DataTable table = new DataTable();
+            var table = new DataTable();
             table.Columns.Add("draw_datetime", typeof(string));
             table.Columns.Add("bet_count", typeof(int));
             table.Columns.Add("bet_money", typeof(int));
